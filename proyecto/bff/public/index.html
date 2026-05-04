@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Académico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --card-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 3rem;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #60a5fa, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .dashboard-container {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .student-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: fadeInUp 0.8s ease-out backwards;
+    }
+
+    .student-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 1rem;
+    }
+
+    .student-info h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .student-info span {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.1);
+      padding: 0.2rem 0.6rem;
+      border-radius: 99px;
+    }
+
+    .average-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--accent);
+    }
+
+    .average-badge.excellent { border-color: var(--success); color: var(--success); }
+    .average-badge.good { border-color: var(--warning); color: var(--warning); }
+    .average-badge.needs-improvement { border-color: var(--danger); color: var(--danger); }
+
+    .average-val {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    
+    .average-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0.8;
+    }
+
+    .grades-list {
+      list-style: none;
+    }
+
+    .grade-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px dashed rgba(255,255,255,0.05);
+    }
+
+    .grade-item:last-child {
+      border-bottom: none;
+    }
+
+    .grade-subject {
+      color: #cbd5e1;
+      font-weight: 400;
+    }
+
+    .grade-score {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .loading-state {
+      text-align: center;
+      grid-column: 1 / -1;
+      padding: 4rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem auto;
+    }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Dashboard Académico</h1>
+    <p class="subtitle">Portal de Notas y Rendimiento</p>
+  </header>
+
+  <div id="dashboard" class="dashboard-container">
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Cargando información del sistema distribuido...</p>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const dashboardContainer = document.getElementById('dashboard');
+
+      try {
+        const response = await fetch('/api/dashboard');
+        if (!response.ok) throw new Error('Error al conectar con el BFF');
+        
+        const result = await response.json();
+        const students = result.data;
+
+        dashboardContainer.innerHTML = '';
+
+        if (students.length === 0) {
+          dashboardContainer.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">No hay datos disponibles.</p>';
+          return;
+        }
+
+        students.forEach((student, index) => {
+          const avg = student.average.toFixed(1);
+          let avgClass = 'needs-improvement';
+          if (avg >= 6.0) avgClass = 'excellent';
+          else if (avg >= 5.0) avgClass = 'good';
+
+          const card = document.createElement('div');
+          card.className = 'student-card';
+          card.style.animationDelay = `${index * 0.15}s`;
+
+          let gradesHTML = '';
+          if (student.grades && student.grades.length > 0) {
+            gradesHTML = student.grades.map(g => `
+              <li class="grade-item">
+                <span class="grade-subject">${g.subject}</span>
+                <span class="grade-score">${g.score.toFixed(1)}</span>
+              </li>
+            `).join('');
+          } else {
+            gradesHTML = '<li class="grade-item"><span class="grade-subject">Sin notas registradas</span></li>';
+          }
+
+          card.innerHTML = `
+            <div class="card-header">
+              <div class="student-info">
+                <h2>${student.name}</h2>
+                <span>ID: ${student.id} &bull; ${student.age} años</span>
+              </div>
+              <div class="average-badge ${avgClass}">
+                <span class="average-val">${avg}</span>
+                <span class="average-label">Prom</span>
+              </div>
+            </div>
+            <ul class="grades-list">
+              ${gradesHTML}
+            </ul>
+          `;
+
+          dashboardContainer.appendChild(card);
+        });
+
+      } catch (error) {
+        console.error(error);
+        dashboardContainer.innerHTML = `
+          <div style="text-align:center; grid-column: 1/-1; color: var(--danger);">
+            <h2>Error de Conexión</h2>
+            <p>No se pudo recuperar la información de los microservicios.</p>
+          </div>
+        `;
+      }
+    });
+  </script>
+
+</body>
+</html>

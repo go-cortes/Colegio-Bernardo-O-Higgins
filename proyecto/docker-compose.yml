@@ -1,0 +1,20 @@
+version: "3.8"
+
+services:
+  bff:
+    build: ./bff
+    ports:
+      - "3000:3000"
+    depends_on:
+      - microservice-users
+      - microservice-academic
+
+  microservice-users:
+    build: ./microservice-users
+    ports:
+      - "8081:8081"
+
+  microservice-academic:
+    build: ./microservice-academic
+    ports:
+      - "8082:8082"

@@ -1,0 +1,24 @@
+===================================================
+PROPUESTA DE ESTRUCTURA DE REPOSITORIOS (MICROSERVICIOS)
+===================================================
+En una arquitectura profesional orientada a microservicios, el código NO debe residir en un único monorepo gigante sin herramientas de CI avanzadas. La recomendación académica para este proyecto es separar las responsabilidades en repositorios independientes para desacoplar el ciclo de vida (deployments, testing, versionado).
+
+1. Repositorio: frontend-libro-clases
+   - URL sugerida: github.com/tu-organizacion/frontend-libro-clases
+   - Descripción: Contiene la SPA (React + TypeScript). Se despliega estáticamente en servicios como Vercel, Netlify o AWS S3.
+   - Responsabilidad: Interfaz de usuario, gestión de estado local y renderizado.
+
+2. Repositorio: bff-gateway
+   - URL sugerida: github.com/tu-organizacion/bff-gateway
+   - Descripción: Backend For Frontend en Node.js/Express.
+   - Responsabilidad: Orquestar llamadas (dashboard), agregar datos y manejar el enrutamiento API del cliente. Despliegue en contenedores (Ej: Railway, AWS ECS).
+
+3. Repositorio: microservice-users-core
+   - URL sugerida: github.com/tu-organizacion/microservice-users-core
+   - Descripción: Microservicio en Spring Boot para la gestión de estudiantes y roles.
+   - Responsabilidad: Lógica de negocio de usuarios y conexión a DB propia de usuarios. Despliegue independiente en Docker.
+
+4. Repositorio: microservice-academic-core
+   - URL sugerida: github.com/tu-organizacion/microservice-academic-core
+   - Descripción: Microservicio en Spring Boot para notas y asistencia.
+   - Responsabilidad: Lógica de negocio puramente académica. Conexión a DB propia. Despliegue independiente en Docker.
