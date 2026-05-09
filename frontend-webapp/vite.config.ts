@@ -13,7 +13,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
-      exclude: ['node_modules/', 'src/main.tsx', '**/*.config.*']
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['node_modules/', 'src/main.tsx', '**/*.config.*', 'src/**/*.test.*', 'src/setupTests.ts']
     }
   }
 })
