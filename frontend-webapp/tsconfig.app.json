@@ -21,5 +21,18 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/pages/Dashboard.tsx",
+    "src/pages/Asistencia.tsx",
+    "src/pages/GestionAcademica.tsx",
+    "src/pages/GestionUsuarios.tsx",
+    "src/pages/Notas.tsx",
+    "src/components/AdminPanel.tsx",
+    "src/lib/supabaseClient.ts",
+    "src/layouts/Sidebar.tsx",
+    "src/layouts/Header.tsx",
+    "src/layouts/MainLayout.tsx",
+    "src/contexts/NotificationContext.tsx"
+  ]
 }

@@ -1,9 +1,9 @@
 import type { User, Student, Subject, Grade, AppNotification } from '../types';
 
 export const USERS: User[] = [
-  { id: '1', username: 'admin', role: 'Admin', name: 'Administrador Principal' },
-  { id: '2', username: 'profesor', role: 'Docente', name: 'Profesor Titular' },
-  { id: '3', username: 'estudiante', role: 'Estudiante', name: 'Juan Pérez', studentId: 's1' },
+  { id: '1', username: 'admin', role: 'admin', name: 'Administrador Principal' },
+  { id: '2', username: 'profesor', role: 'docente', name: 'Profesor Titular' },
+  { id: '3', username: 'estudiante', role: 'estudiante', name: 'Juan Pérez', studentId: 's1' },
 ];
 
 export const DEFAULT_CREDENTIALS: Record<string, string> = {
@@ -21,21 +21,21 @@ const INITIAL_STUDENTS: Student[] = [
 ];
 
 const INITIAL_SUBJECTS: Subject[] = [
-  { id: 'subj1', name: 'Matemáticas' },
-  { id: 'subj2', name: 'Lenguaje y Comunicación' },
-  { id: 'subj3', name: 'Ciencias Naturales' },
+  { id: 1, name: 'Matemáticas', course_id: 1, teacher_id: '2' },
+  { id: 2, name: 'Lenguaje y Comunicación', course_id: 1, teacher_id: '2' },
+  { id: 3, name: 'Ciencias Naturales', course_id: 1, teacher_id: '2' },
 ];
 
 const INITIAL_GRADES: Grade[] = [
-  { id: 'g1', studentId: 's1', subjectId: 'subj1', value: 6.5, date: '2026-03-15' },
-  { id: 'g2', studentId: 's1', subjectId: 'subj2', value: 5.8, date: '2026-03-16' },
-  { id: 'g3', studentId: 's2', subjectId: 'subj1', value: 4.5, date: '2026-03-15' },
+  { id: 1, student_id: 's1', subject_id: 1, grade: 6.5, created_at: '2026-03-15' },
+  { id: 2, student_id: 's1', subject_id: 2, grade: 5.8, created_at: '2026-03-16' },
+  { id: 3, student_id: 's2', subject_id: 1, grade: 4.5, created_at: '2026-03-15' },
 ];
 
 const INITIAL_NOTIFICATIONS: AppNotification[] = [
   { id: 'n1', message: 'Bienvenido al nuevo sistema digital del colegio.', read: false, date: new Date().toISOString(), targetRole: 'ALL' },
-  { id: 'n2', message: 'El profesor Juan ha actualizado las notas de 1ro Medio.', read: false, date: new Date().toISOString(), targetRole: 'Admin' },
-  { id: 'n3', message: 'Nueva nota en Matemáticas: 6.5', read: false, date: new Date().toISOString(), targetRole: 'Estudiante', targetUserId: '3' },
+  { id: 'n2', message: 'El profesor Juan ha actualizado las notas de 1ro Medio.', read: false, date: new Date().toISOString(), targetRole: 'admin' },
+  { id: 'n3', message: 'Nueva nota en Matemáticas: 6.5', read: false, date: new Date().toISOString(), targetRole: 'estudiante', targetUserId: '3' },
 ];
 
 export const initializeDB = () => {
@@ -71,7 +71,7 @@ export const deleteStudent = (studentId: string) => {
   localStorage.setItem('students', JSON.stringify(filtered));
   
   // Opcional: borrar en cascada notas y asistencia de ese alumno
-  const grades = JSON.parse(localStorage.getItem('grades') || '[]').filter((g: Grade) => g.studentId !== studentId);
+  const grades = JSON.parse(localStorage.getItem('grades') || '[]').filter((g: Grade) => g.student_id !== studentId);
   localStorage.setItem('grades', JSON.stringify(grades));
 
   const attendance = JSON.parse(localStorage.getItem('attendance') || '[]').filter((a: any) => a.studentId !== studentId);

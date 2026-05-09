@@ -27,8 +27,8 @@ export function useFetch<T>(url: string, options?: RequestInit): FetchState<T> &
       }
       const result = await response.json();
       setData(result);
-    } catch (err: any) {
-      setError(err);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }

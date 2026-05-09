@@ -35,7 +35,7 @@ export const AdminPanel: React.FC = () => {
           courseId: 1
         });
       }
-    } catch (err: any) {
+    } catch {
       setStatus({ type: 'error', message: 'Error de conexión con el servidor.' });
     } finally {
       setIsLoading(false);
