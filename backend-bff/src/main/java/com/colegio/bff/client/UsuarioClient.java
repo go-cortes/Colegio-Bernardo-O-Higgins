@@ -34,8 +34,16 @@ public class UsuarioClient {
             return response.getBody();
         } catch (Exception e) {
             log.error("Error al obtener usuarios desde el microservicio: {}", e.getMessage());
-            // Manejo básico de errores: retornar lista vacía en caso de fallo
             return Collections.emptyList();
+        }
+    }
+
+    public UsuarioDTO postUsuario(UsuarioDTO dto) {
+        try {
+            return restTemplate.postForObject(urlUsuarios + "/usuarios", dto, UsuarioDTO.class);
+        } catch (Exception e) {
+            log.error("Error al crear usuario en el microservicio: {}", e.getMessage());
+            return null;
         }
     }
 }
