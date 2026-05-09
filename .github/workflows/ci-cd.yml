@@ -21,11 +21,11 @@ jobs:
         cache: maven
         
     - name: Build with Maven
-      working-directory: ./backend-services
+      working-directory: ./backend-bff
       run: mvn clean verify
       
     - name: Run SonarQube Scan (Simulation)
-      working-directory: ./backend-services
+      working-directory: ./backend-bff
       run: echo "Simulating SonarQube Analysis... Ensure Clean Code rules and 60% coverage."
 
   frontend-build:
