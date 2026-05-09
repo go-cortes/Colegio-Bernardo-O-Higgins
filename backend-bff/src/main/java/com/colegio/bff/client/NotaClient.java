@@ -34,8 +34,16 @@ public class NotaClient {
             return response.getBody();
         } catch (Exception e) {
             log.error("Error al obtener notas desde el microservicio: {}", e.getMessage());
-            // Manejo básico de errores: retornar lista vacía en caso de fallo
             return Collections.emptyList();
+        }
+    }
+
+    public NotaDTO postNota(NotaDTO dto) {
+        try {
+            return restTemplate.postForObject(urlNotas + "/notas", dto, NotaDTO.class);
+        } catch (Exception e) {
+            log.error("Error al crear nota en el microservicio: {}", e.getMessage());
+            return null;
         }
     }
 }

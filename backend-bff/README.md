@@ -1,55 +1,42 @@
-# Backend For Frontend (BFF) - Colegio O'Higgins
+# backend-bff
 
-Este microservicio actúa como un orquestador o capa intermedia (BFF) entre el cliente (Frontend en React) y los microservicios de backend. Su responsabilidad principal es recibir peticiones del frontend, comunicarse con uno o múltiples microservicios, agrupar las respuestas y devolver un único JSON unificado.
+API Gateway que implementa el patrón **BFF (Backend For Frontend)**. Recibe todas las peticiones del frontend, las delega a los microservicios correspondientes y agrega las respuestas. Incluye **Circuit Breaker** con Resilience4j para tolerancia a fallos.
 
-## Arquitectura
-- **Controller:** Punto de entrada único para el Frontend (`/dashboard`).
-- **Service:** Agrupa y orquesta la información.
-- **Client:** Implementa `RestTemplate` para realizar llamadas HTTP (GET) a los microservicios subyacentes.
+## Requisitos
 
-## Dependencias Requeridas (Microservicios)
-Para que este BFF devuelva información real, los siguientes microservicios deben estar levantados y ejecutándose en tu máquina local:
-1. `microservicio-usuarios` (Debe correr en el puerto `8081`)
-2. `microservicio-notas` (Debe correr en el puerto `8082`)
+- Java 17+
+- Maven 3.8+
+- `microservicio-usuarios` corriendo en puerto 8081
+- `microservicio-notas` corriendo en puerto 8082
 
-## Ejecución Local
-
-Para ejecutar el BFF:
+## Ejecución
 
 ```bash
-cd backend-bff
 mvn spring-boot:run
 ```
-El servidor del BFF iniciará en el puerto **`8080`**.
+
+Disponible en **http://localhost:8080**
 
 ## Endpoints
 
-### 1. Obtener Dashboard Combinado
-**GET** `/dashboard`
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/dashboard` | Usuarios + notas combinados |
+| GET | `/usuarios` | Lista usuarios (delega a :8081) |
+| POST | `/usuarios` | Crea usuario (delega a :8081) |
+| GET | `/notas` | Lista notas (delega a :8082) |
+| POST | `/notas` | Crea nota (delega a :8082) |
 
-Este endpoint hace dos peticiones en segundo plano (una a `usuarios` y otra a `notas`) y agrupa los resultados.
+## Circuit Breaker
 
-**Respuesta Exitosa (200 OK):**
-```json
-{
-  "usuarios": [
-    {
-      "id": 1,
-      "nombre": "Admin Colegio",
-      "email": "admin@colegio.cl"
-    }
-  ],
-  "notas": [
-    {
-      "id": 1,
-      "estudianteId": 101,
-      "asignatura": "Matemáticas",
-      "valorNota": 6.5
-    }
-  ],
-  "estadoBFF": "Operativo - Datos combinados exitosamente"
-}
+Si un microservicio no responde, el BFF retorna una respuesta de fallback en lugar de propagar el error:
+
+- `GET /usuarios` → `[]`
+- `GET /notas` → `[]`
+- `GET /dashboard` → `{ usuarios: [], notas: [], estadoBFF: "Servicio no disponible" }`
+
+## Pruebas
+
+```bash
+mvn test
 ```
-
-## Manejo de Errores
-Si uno de los microservicios se cae (ej: apagaste el de notas), el BFF está programado con manejo básico de excepciones (bloque `try/catch` en la capa Client) para devolver una lista vacía en vez de arrojar un error HTTP 500 al Frontend.

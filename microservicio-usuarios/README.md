@@ -1,74 +1,52 @@
-# Microservicio de Usuarios
+# microservicio-usuarios
 
-Microservicio desarrollado en Java con Spring Boot para la gestión de usuarios, diseñado con arquitectura multicapas y un almacenamiento simulado en memoria.
-
-## Arquitectura (Capas)
-- **Controller:** Maneja las peticiones REST.
-- **Service:** Lógica de negocio y conversiones.
-- **Repository:** Almacenamiento simulado de datos en memoria (List).
-- **DTO:** Data Transfer Objects para entradas y salidas.
-- **Model:** Entidad del dominio de negocio.
+Microservicio Spring Boot para la gestión de usuarios del colegio. Persiste los datos en PostgreSQL mediante Spring Data JPA.
 
 ## Requisitos
+
 - Java 17+
 - Maven 3.8+
+- PostgreSQL corriendo con la base de datos `colegio_usuarios`
 
-## Ejecución Local
+## Configuración de base de datos
 
-Para compilar y ejecutar el proyecto:
+```sql
+CREATE DATABASE colegio_usuarios;
+```
+
+Las variables de entorno `DB_URL`, `DB_USER` y `DB_PASSWORD` sobreescriben los valores por defecto del `application.properties`. Sin ellas, se usan:
+
+```
+url:      jdbc:postgresql://localhost:5432/colegio_usuarios
+usuario:  postgres
+password: postgres
+```
+
+## Ejecución
 
 ```bash
-# Navegar a la carpeta del microservicio
-cd microservicio-usuarios
-
-# Ejecutar con Maven Wrapper o Maven local
 mvn spring-boot:run
 ```
-El servidor iniciará por defecto en `http://localhost:8080`.
+
+Disponible en **http://localhost:8081**
 
 ## Endpoints
 
-### 1. Obtener todos los usuarios
-**GET** `/usuarios`
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/usuarios` | Lista todos los usuarios |
+| POST | `/usuarios` | Registra un nuevo usuario |
 
-**Respuesta Exitosa (200 OK):**
-```json
-[
-  {
-    "id": 1,
-    "nombre": "Admin Colegio",
-    "email": "admin@colegio.cl"
-  },
-  {
-    "id": 2,
-    "nombre": "Profesor Jefe",
-    "email": "profesor@colegio.cl"
-  }
-]
-```
+**Ejemplo POST `/usuarios`:**
 
-### 2. Crear un usuario
-**POST** `/usuarios`
-
-**Cuerpo de la Petición (JSON):**
 ```json
 {
-  "nombre": "Estudiante Nuevo",
-  "email": "estudiante@colegio.cl"
+  "nombre": "Juan Pérez",
+  "email": "juan@colegio.cl"
 }
 ```
 
-**Respuesta Exitosa (201 Created):**
-```json
-{
-  "id": 3,
-  "nombre": "Estudiante Nuevo",
-  "email": "estudiante@colegio.cl"
-}
-```
-
-## Pruebas Unitarias
-El proyecto cuenta con cobertura de pruebas unitarias usando **JUnit 5** y **Mockito** en la capa de servicios. Para ejecutarlas:
+## Pruebas
 
 ```bash
 mvn test

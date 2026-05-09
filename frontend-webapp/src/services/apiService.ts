@@ -1,94 +1,75 @@
-import { supabase } from '../lib/supabaseClient';
-import type { Grade, Attendance } from '../types';
+const BFF_URL = 'http://localhost:8080';
 
-// --- FUNCIONES DE ADMINISTRADOR ---
-
-/**
- * Crea una cuenta de estudiante completa (Auth + Profile + Student row)
- * Requiere que la función RPC 'create_student_account' esté configurada en Supabase.
- */
-export const createStudent = async (userData: any) => {
-  return await supabase.rpc('create_student_account', {
-    p_email: userData.email,
-    p_password: userData.password,
-    p_rut: userData.rut,
-    p_first_name: userData.firstName,
-    p_last_name: userData.lastName,
-    p_course_id: userData.courseId
+async function bffFetch<T>(path: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(`${BFF_URL}${path}`, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
   });
-};
-
-/**
- * Elimina un estudiante y su perfil.
- * Si la DB tiene ON DELETE CASCADE, borrar profiles suele ser suficiente.
- */
-export const deleteStudent = async (studentId: string) => {
-  // Primero borramos de la tabla students (aunque CASCADE lo haría, lo aseguramos)
-  await supabase.from('students').delete().eq('id', studentId);
-  return await supabase.from('profiles').delete().eq('id', studentId);
-};
-
-export const getStudents = async () => {
-  return await supabase
-    .from('students')
-    .select(`
-      id,
-      rut,
-      course_id,
-      profiles (
-        first_name,
-        last_name,
-        role
-      )
-    `);
-};
-
-// --- FUNCIONES DE PROFESOR ---
-
-export const getSubjects = async () => {
-  return await supabase.from('subjects').select('*');
-};
-
-export const addGrade = async (gradeData: Partial<Grade>) => {
-  return await supabase.from('grades').insert([gradeData]);
-};
-
-export const getAllGrades = async () => {
-  return await supabase.from('grades').select('*');
-};
-
-export const markAttendance = async (attendanceData: any[]) => {
-  return await supabase.from('attendance').insert(attendanceData);
-};
-
-export const getAttendanceHistory = async (studentId?: string) => {
-  let query = supabase.from('attendance').select('*');
-  if (studentId) {
-    query = query.eq('student_id', studentId);
+  if (!res.ok) {
+    throw new Error(`BFF error ${res.status}: ${res.statusText}`);
   }
-  return await query.order('date', { ascending: false });
-};
+  return res.json() as Promise<T>;
+}
 
-// --- FUNCIONES DE ESTUDIANTE ---
+// --- USUARIOS ---
 
-export const getMyGrades = async (studentId: string) => {
-  return await supabase
-    .from('grades')
-    .select('id, grade, created_at, subject_id')
-    .eq('student_id', studentId);
-};
+export const getUsuarios = () =>
+  bffFetch<{ id: number; nombre: string; email: string }[]>('/usuarios');
 
-// --- DASHBOARD / ANALYTICS ---
+export const crearUsuario = (data: { nombre: string; email: string }) =>
+  bffFetch<{ id: number; nombre: string; email: string }>('/usuarios', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 
-export const getStudentsCount = async () => {
-  return await supabase
-    .from('students')
-    .select('*', { count: 'exact', head: true });
-};
+// Alias para compatibilidad con componentes que usan getStudents
+export const getStudents = getUsuarios;
 
-export const getGlobalGrades = async () => {
-  return await supabase
-    .from('grades')
-    .select('grade, created_at')
-    .order('created_at', { ascending: true });
-};
+export const createStudent = (userData: { nombre: string; email: string }) =>
+  crearUsuario(userData);
+
+// --- NOTAS ---
+
+export const getNotas = () =>
+  bffFetch<{ id: number; estudianteId: number; asignatura: string; valorNota: number }[]>(
+    '/notas'
+  );
+
+export const crearNota = (data: {
+  estudianteId: number;
+  asignatura: string;
+  valorNota: number;
+}) =>
+  bffFetch<{ id: number; estudianteId: number; asignatura: string; valorNota: number }>(
+    '/notas',
+    { method: 'POST', body: JSON.stringify(data) }
+  );
+
+// Alias para compatibilidad con componentes que usan addGrade / getAllGrades
+export const getAllGrades = getNotas;
+
+export const addGrade = (data: {
+  estudianteId: number;
+  asignatura: string;
+  valorNota: number;
+}) => crearNota(data);
+
+export const getMyGrades = (estudianteId: number) =>
+  getNotas().then((notas) => notas.filter((n) => n.estudianteId === estudianteId));
+
+// --- DASHBOARD ---
+
+export const getDashboard = () =>
+  bffFetch<{
+    usuarios: { id: number; nombre: string; email: string }[];
+    notas: { id: number; estudianteId: number; asignatura: string; valorNota: number }[];
+    estadoBFF: string;
+  }>('/dashboard');
+
+export const getStudentsCount = () =>
+  getUsuarios().then((usuarios) => ({ count: usuarios.length, error: null }));
+
+export const getGlobalGrades = () =>
+  getNotas().then((notas) =>
+    notas.map((n) => ({ grade: n.valorNota, asignatura: n.asignatura }))
+  );
