@@ -1,0 +1,22 @@
+INSERT INTO notas (estudiante_id, asignatura, nota) VALUES
+(3, 'Matemáticas', 6.2),
+(3, 'Lenguaje',    5.8),
+(3, 'Ciencias',    6.5),
+(3, 'Historia',    6.0),
+(3, 'Inglés',      5.5),
+(4, 'Matemáticas', 5.5),
+(4, 'Lenguaje',    5.0),
+(4, 'Ciencias',    4.8),
+(4, 'Historia',    6.0),
+(4, 'Inglés',      5.2),
+(5, 'Matemáticas', 7.0),
+(5, 'Lenguaje',    7.0),
+(5, 'Ciencias',    6.8),
+(5, 'Historia',    7.0),
+(5, 'Inglés',      7.0),
+(6, 'Matemáticas', 3.8),
+(6, 'Lenguaje',    4.2),
+(6, 'Ciencias',    3.5),
+(6, 'Historia',    4.0),
+(6, 'Inglés',      3.2)
+ON CONFLICT DO NOTHING;
