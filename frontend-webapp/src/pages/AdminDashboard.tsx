@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 import { Users, Shield, LogOut, Settings, BarChart as BarChartIcon, Trash2, Plus, Bell, Lock } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
@@ -27,25 +28,35 @@ export const AdminDashboard: React.FC = () => {
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevoEmail, setNuevoEmail] = useState('');
   const [nuevoRol, setNuevoRol] = useState('Alumno');
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
-  const handleAddUser = (e: React.FormEvent) => {
+  const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoNombre || !nuevoEmail) return;
-
-    const nuevoUsuario: Usuario = {
-      id: Date.now().toString(),
-      nombre: nuevoNombre,
-      email: nuevoEmail,
-      rol: nuevoRol,
-    };
-
-    setUsuarios([...usuarios, nuevoUsuario]);
-    setNuevoNombre('');
-    setNuevoEmail('');
+    setIsCreatingUser(true);
+    try {
+      await new Promise(res => setTimeout(res, 500));
+      const nuevoUsuario: Usuario = {
+        id: Date.now().toString(),
+        nombre: nuevoNombre,
+        email: nuevoEmail,
+        rol: nuevoRol,
+      };
+      setUsuarios(prev => [...prev, nuevoUsuario]);
+      setNuevoNombre('');
+      setNuevoEmail('');
+      toast.success(`Cuenta creada para ${nuevoNombre}`);
+    } catch {
+      toast.error('Error al crear la cuenta. Intente nuevamente.');
+    } finally {
+      setIsCreatingUser(false);
+    }
   };
 
   const handleDeleteUser = (id: string) => {
+    const usuario = usuarios.find(u => u.id === id);
     setUsuarios(usuarios.filter(u => u.id !== id));
+    toast.success(`Usuario ${usuario?.nombre ?? ''} eliminado`);
   };
 
   // --- LÓGICA DE GRÁFICOS (ESTADÍSTICAS REALES) ---
@@ -224,8 +235,13 @@ export const AdminDashboard: React.FC = () => {
                         <option value="Administrador">Administrador</option>
                       </select>
                     </div>
-                    <button type="submit" className="premium-btn w-full mt-2 bg-brand-600 hover:bg-brand-700 text-white font-medium">
-                      Crear Cuenta
+                    <button type="submit" disabled={isCreatingUser} className="premium-btn w-full mt-2 bg-brand-600 hover:bg-brand-700 text-white font-medium">
+                      {isCreatingUser ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                          Guardando...
+                        </span>
+                      ) : 'Crear Cuenta'}
                     </button>
                   </form>
                 </div>
@@ -321,7 +337,7 @@ export const AdminDashboard: React.FC = () => {
                    </label>
                  </div>
                </div>
-               <button className="premium-btn w-full mt-8 bg-slate-800">Guardar Cambios</button>
+               <button onClick={() => toast.success('Configuración guardada correctamente')} className="premium-btn w-full mt-8 bg-slate-800">Guardar Cambios</button>
             </div>
           </div>
         )}

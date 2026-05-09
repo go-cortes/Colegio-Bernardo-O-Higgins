@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 import { LogOut, BookOpen, Users, GraduationCap, Save, Edit3, X } from 'lucide-react';
 
 interface Notas {
@@ -33,6 +34,7 @@ export const ProfesorDashboard: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [tempAsistencia, setTempAsistencia] = useState<number>(0);
   const [tempNotas, setTempNotas] = useState<Notas>({ matematicas: 0, lenguaje: 0, ciencias: 0, historia: 0, ingles: 0 });
+  const [isSaving, setIsSaving] = useState(false);
 
   const startEditing = (est: Estudiante) => {
     setEditingId(est.id);
@@ -40,12 +42,22 @@ export const ProfesorDashboard: React.FC = () => {
     setTempNotas({ ...est.notas });
   };
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     if (!editingId) return;
-    setEstudiantes(estudiantes.map(est => 
-      est.id === editingId ? { ...est, asistencia: tempAsistencia, notas: tempNotas } : est
-    ));
-    setEditingId(null);
+    setIsSaving(true);
+    try {
+      await new Promise(res => setTimeout(res, 500));
+      setEstudiantes(estudiantes.map(est =>
+        est.id === editingId ? { ...est, asistencia: tempAsistencia, notas: tempNotas } : est
+      ));
+      const nombre = estudiantes.find(e => e.id === editingId)?.nombre ?? '';
+      setEditingId(null);
+      toast.success(`Calificaciones de ${nombre} guardadas`);
+    } catch {
+      toast.error('Error al guardar. Intente nuevamente.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const calcularPromedio = (notas: Notas) => {
@@ -102,8 +114,15 @@ export const ProfesorDashboard: React.FC = () => {
 
                 <div className="pt-4 flex justify-end gap-3 border-t">
                   <button onClick={() => setEditingId(null)} className="px-4 py-2 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition-colors">Cancelar</button>
-                  <button onClick={saveChanges} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors shadow-sm">
-                    <Save className="w-4 h-4" /> Guardar Cambios
+                  <button onClick={saveChanges} disabled={isSaving} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-medium transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isSaving ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>
+                        Guardando...
+                      </>
+                    ) : (
+                      <><Save className="w-4 h-4" /> Guardar Cambios</>
+                    )}
                   </button>
                 </div>
              </div>
