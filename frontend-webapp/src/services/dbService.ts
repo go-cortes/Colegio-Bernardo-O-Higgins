@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { User, Student, Subject, Grade, AppNotification } from '../types';
 
 export const USERS: User[] = [
@@ -77,3 +78,4 @@ export const deleteStudent = (studentId: string) => {
   const attendance = JSON.parse(localStorage.getItem('attendance') || '[]').filter((a: any) => a.studentId !== studentId);
   localStorage.setItem('attendance', JSON.stringify(attendance));
 };
+

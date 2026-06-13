@@ -7,7 +7,7 @@ import * as api from '../services/apiService';
 import { AdminPanel } from '../components/AdminPanel';
 
 // Función auxiliar para agrupar notas por mes
-const transformGradesToChart = (grades: any[]) => {
+const transformGradesToChart = (grades: { created_at?: string; grade?: number | string; }[]) => {
   if (!grades || grades.length === 0) return [];
   
   const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
@@ -47,7 +47,7 @@ const DashboardEstudiante: React.FC = () => {
       try {
         // 1. Obtener notas reales del estudiante
         const { data: gradesData } = await api.getMyGrades(user.id);
-        if (gradesData) setGrades(gradesData as any);
+        if (gradesData) setGrades(gradesData as Grade[]);
 
         // 2. Obtener asistencia real del estudiante
         const { data: attendanceData } = await api.getAttendanceHistory(user.id);
@@ -148,7 +148,7 @@ const DashboardGeneral: React.FC = () => {
   const { user } = useAuth();
   const [totalStudents, setTotalStudents] = useState(0);
   const [avgAttendance, setAvgAttendance] = useState(0);
-  const [chartData, setChartData] = useState<any[]>([]);
+  const [chartData, setChartData] = useState<{name: string, promedio: number, asistencia: number}[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {

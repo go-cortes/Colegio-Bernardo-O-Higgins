@@ -3,7 +3,7 @@ import { Trash2, UserPlus, Loader2, Search } from 'lucide-react';
 import * as api from '../services/apiService';
 
 export const GestionUsuarios: React.FC = () => {
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<unknown[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [toastMessage, setToastMessage] = useState('');
@@ -38,8 +38,8 @@ export const GestionUsuarios: React.FC = () => {
         
         showToast('Estudiante eliminado correctamente 🗑️');
         loadStudents();
-      } catch (error: any) {
-        alert('Error al eliminar: ' + error.message);
+      } catch (error: unknown) {
+        alert('Error al eliminar: ' + (error as Error).message);
       }
     }
   };

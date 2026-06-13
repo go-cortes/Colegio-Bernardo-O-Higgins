@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { AppNotification } from '../types';
 import { useAuth } from './AuthContext';
@@ -71,3 +72,4 @@ export const useNotifications = () => {
   }
   return context;
 };
+

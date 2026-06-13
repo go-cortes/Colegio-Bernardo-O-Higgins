@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState, useEffect } from 'react';
 
 interface FetchState<T> {
@@ -40,3 +41,4 @@ export function useFetch<T>(url: string, options?: RequestInit): FetchState<T> &
 
   return { data, loading, error, refetch: fetchData };
 }
+

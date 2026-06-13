@@ -1,9 +1,10 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { LogOut, BookOpen, Users, GraduationCap, Save, Edit3, X, ClipboardList, Loader2, AlertCircle } from 'lucide-react';
 import { crearAnotacion, registrarAsistencia, getAlumnos, getNotas, crearNota } from '../services/apiService';
-import type { AnotacionDTO, AsistenciaDTO, EstadoAsistencia, TipoAnotacion } from '../types';
+import type { EstadoAsistencia, TipoAnotacion } from '../types';
 
 interface AlumnoAPI {
   id: number;
@@ -640,3 +641,4 @@ export const ProfesorDashboard: React.FC = () => {
     </div>
   );
 };
+

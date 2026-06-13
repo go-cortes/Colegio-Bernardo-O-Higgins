@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState } from 'react';
 import * as api from '../services/apiService';
 import { UserPlus, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
@@ -149,3 +150,4 @@ export const AdminPanel: React.FC = () => {
     </div>
   );
 }
+

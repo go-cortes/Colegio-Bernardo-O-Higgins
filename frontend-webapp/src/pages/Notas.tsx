@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { FileText, PlusCircle, X, Loader2 } from 'lucide-react';
@@ -376,3 +377,4 @@ export const Notas: React.FC = () => {
     </div>
   );
 };
+

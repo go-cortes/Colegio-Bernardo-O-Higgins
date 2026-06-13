@@ -5,11 +5,11 @@ import * as api from '../services/apiService';
 
 export const Asistencia: React.FC = () => {
   const { user } = useAuth();
-  const [students, setStudents] = useState<any[]>([]);
+  const [students, setStudents] = useState<unknown[]>([]);
   const [attendanceMap, setAttendanceMap] = useState<Record<string, 'presente' | 'ausente' | 'atraso'>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [toastMessage, setToastMessage] = useState('');
-  const [historialEstudiante, setHistorialEstudiante] = useState<any[]>([]);
+  const [historialEstudiante, setHistorialEstudiante] = useState<unknown[]>([]);
 
   const isEstudiante = user?.role === 'estudiante';
   const canEdit = ['admin', 'docente'].includes(user?.role || '');
@@ -43,7 +43,7 @@ export const Asistencia: React.FC = () => {
     };
 
     fetchData();
-  }, [user?.id, user?.role]);
+  }, [user?.id, user?.role, canEdit, isEstudiante]);
 
   const toggleAttendance = (id: string) => {
     if (!canEdit) return;
