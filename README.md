@@ -12,12 +12,12 @@ Frontend React (5173)
         ▼  HTTP / REST
 BFF Spring Boot (8080)   ← Circuit Breaker + CORS
         │
-   ┌────┴────┐
-   ▼         ▼
-ms-usuarios  ms-notas
-  (8081)      (8082)
-   │             │
-   └──── PostgreSQL ────┘
+   ┌────┼─────────┐
+   ▼    ▼         ▼
+ms-usuarios  ms-notas  ms-convivencia
+  (8081)      (8082)      (8083)
+   │             │           │
+   └──── PostgreSQL ─────────┘
 ```
 
 ---
@@ -41,6 +41,7 @@ Asegúrate de tener PostgreSQL corriendo y crea las bases de datos:
 ```sql
 CREATE DATABASE colegio_usuarios;
 CREATE DATABASE colegio_notas;
+CREATE DATABASE colegio_convivencia;
 ```
 
 ### 2. Microservicio de Usuarios (puerto 8081)
@@ -57,14 +58,21 @@ cd microservicio-notas
 mvn spring-boot:run
 ```
 
-### 4. BFF (puerto 8080)
+### 4. Microservicio de Convivencia (puerto 8083)
+
+```bash
+cd microservicio-convivencia
+mvn spring-boot:run
+```
+
+### 5. BFF (puerto 8080)
 
 ```bash
 cd backend-bff
 mvn spring-boot:run
 ```
 
-### 5. Frontend (puerto 5173)
+### 6. Frontend (puerto 5173)
 
 ```bash
 cd frontend-webapp
@@ -94,6 +102,7 @@ Abre el navegador en **http://localhost:5173**
 | BFF | 8080 |
 | microservicio-usuarios | 8081 |
 | microservicio-notas | 8082 |
+| microservicio-convivencia | 8083 |
 
 ---
 
@@ -105,6 +114,7 @@ Colegio-Bernardo-O-Higgins/
 ├── backend-bff/              # BFF Spring Boot 3 — API Gateway
 ├── microservicio-usuarios/   # Microservicio usuarios (JPA + PostgreSQL)
 ├── microservicio-notas/      # Microservicio notas (JPA + PostgreSQL)
+├── microservicio-convivencia/# Microservicio convivencia (JPA + PostgreSQL)
 ├── maven-arquetipo-spring/   # Arquetipo Maven base para nuevos microservicios
 └── docs/                     # Documentación técnica
 ```
