@@ -75,11 +75,19 @@ export const Login: React.FC = () => {
           )}
 
           {/* Credenciales de demo */}
-          <div className="mb-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 border border-slate-100">
-            <p className="font-semibold text-slate-600 mb-1">Credenciales de demo:</p>
-            <p>admin@colegio.cl / 1234</p>
-            <p>profesor@colegio.cl / 1234</p>
-            <p>estudiante@colegio.cl / 1234</p>
+          <div className="mb-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500 border border-slate-100 space-y-1">
+            <p className="font-semibold text-slate-600 mb-2">👤 Accesos de demo:</p>
+            <p className="font-medium text-slate-500">Administrador</p>
+            <p className="pl-2">admin@colegio.cl / <strong>admin</strong></p>
+            <p className="font-medium text-slate-500 mt-1">Profesores</p>
+            <p className="pl-2">profesor@colegio.cl / <strong>profesor</strong></p>
+            <p className="pl-2">maria@colegio.cl / <strong>maria</strong></p>
+            <p className="font-medium text-slate-500 mt-1">Alumnos <span className="text-slate-400">(contraseña = parte antes del @)</span></p>
+            <p className="pl-2">alumno@colegio.cl / <strong>alumno</strong></p>
+            <p className="pl-2">sofia@colegio.cl / <strong>sofia</strong></p>
+            <p className="pl-2">benjamin@colegio.cl / <strong>benjamin</strong></p>
+            <p className="pl-2">carlos@colegio.cl / <strong>carlos</strong></p>
+            <p className="pl-2">martina@colegio.cl / <strong>martina</strong></p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-6">

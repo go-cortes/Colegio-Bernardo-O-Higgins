@@ -1,7 +1,13 @@
 package com.colegio.bff.service;
 
+import com.colegio.bff.client.AnotacionClient;
+import com.colegio.bff.client.AsistenciaClient;
 import com.colegio.bff.client.NotaClient;
 import com.colegio.bff.client.UsuarioClient;
+import com.colegio.bff.dto.AnotacionRequestDTO;
+import com.colegio.bff.dto.AnotacionResponseDTO;
+import com.colegio.bff.dto.AsistenciaRequestDTO;
+import com.colegio.bff.dto.AsistenciaResponseDTO;
 import com.colegio.bff.dto.DashboardResponseDTO;
 import com.colegio.bff.dto.NotaDTO;
 import com.colegio.bff.dto.UsuarioDTO;
@@ -22,6 +28,8 @@ public class BffService {
 
     private final UsuarioClient usuarioClient;
     private final NotaClient notaClient;
+    private final AnotacionClient anotacionClient;
+    private final AsistenciaClient asistenciaClient;
 
     // -------------------------------------------------------------------------
     // Dashboard (orquesta ambos microservicios — se protege con su propio CB)
@@ -76,9 +84,19 @@ public class BffService {
         return fallback;
     }
 
-    // -------------------------------------------------------------------------
-    // Notas
-    // -------------------------------------------------------------------------
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackObtenerUsuarios")
+    public List<UsuarioDTO> obtenerAlumnos() {
+        return usuarioClient.getAlumnos();
+    }
+
+    /**
+     * Busca un usuario por email en el microservicio de usuarios.
+     * Se usa para autenticación: si existe en la BD → credenciales válidas.
+     */
+    public java.util.Optional<UsuarioDTO> loginPorEmail(String email) {
+        return usuarioClient.getByEmail(email);
+    }
+
 
     @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackObtenerNotas")
     public List<NotaDTO> obtenerNotas() {
@@ -87,6 +105,16 @@ public class BffService {
 
     public List<NotaDTO> fallbackObtenerNotas(Throwable t) {
         log.warn("Circuit breaker abierto en obtenerNotas: {}", t.getMessage());
+        return Collections.emptyList();
+    }
+
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackObtenerNotasEstudiante")
+    public List<NotaDTO> obtenerNotasPorEstudiante(Long estudianteId) {
+        return notaClient.getNotasPorEstudiante(estudianteId);
+    }
+
+    public List<NotaDTO> fallbackObtenerNotasEstudiante(Long estudianteId, Throwable t) {
+        log.warn("Circuit breaker abierto en obtenerNotasPorEstudiante: {}", t.getMessage());
         return Collections.emptyList();
     }
 
@@ -102,6 +130,59 @@ public class BffService {
         fallback.setEstudianteId(dto.getEstudianteId());
         fallback.setAsignatura("Servicio no disponible");
         fallback.setValorNota(0.0);
+        return fallback;
+    }
+
+    // -------------------------------------------------------------------------
+    // Anotaciones de Convivencia
+    // -------------------------------------------------------------------------
+
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackObtenerAnotaciones")
+    public List<AnotacionResponseDTO> obtenerAnotaciones() {
+        return anotacionClient.getAnotaciones();
+    }
+
+    public List<AnotacionResponseDTO> fallbackObtenerAnotaciones(Throwable t) {
+        log.warn("Circuit breaker abierto en obtenerAnotaciones: {}", t.getMessage());
+        return Collections.emptyList();
+    }
+
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackCrearAnotacion")
+    public AnotacionResponseDTO crearAnotacion(AnotacionRequestDTO dto) {
+        return anotacionClient.postAnotacion(dto);
+    }
+
+    public AnotacionResponseDTO fallbackCrearAnotacion(AnotacionRequestDTO dto, Throwable t) {
+        log.warn("Circuit breaker abierto en crearAnotacion: {}", t.getMessage());
+        AnotacionResponseDTO fallback = new AnotacionResponseDTO();
+        fallback.setId(-1L);
+        fallback.setDescripcion("Servicio no disponible");
+        return fallback;
+    }
+
+    // -------------------------------------------------------------------------
+    // Asistencias de Convivencia
+    // -------------------------------------------------------------------------
+
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackObtenerAsistencias")
+    public List<AsistenciaResponseDTO> obtenerAsistenciasPorEstudiante(Long estudianteId) {
+        return asistenciaClient.getAsistenciasPorEstudiante(estudianteId);
+    }
+
+    public List<AsistenciaResponseDTO> fallbackObtenerAsistencias(Long estudianteId, Throwable t) {
+        log.warn("Circuit breaker abierto en obtenerAsistencias: {}", t.getMessage());
+        return Collections.emptyList();
+    }
+
+    @CircuitBreaker(name = CB_NAME, fallbackMethod = "fallbackRegistrarAsistencia")
+    public AsistenciaResponseDTO registrarAsistencia(AsistenciaRequestDTO dto) {
+        return asistenciaClient.registrarAsistencia(dto);
+    }
+
+    public AsistenciaResponseDTO fallbackRegistrarAsistencia(AsistenciaRequestDTO dto, Throwable t) {
+        log.warn("Circuit breaker abierto en registrarAsistencia: {}", t.getMessage());
+        AsistenciaResponseDTO fallback = new AsistenciaResponseDTO();
+        fallback.setId(-1L);
         return fallback;
     }
 }

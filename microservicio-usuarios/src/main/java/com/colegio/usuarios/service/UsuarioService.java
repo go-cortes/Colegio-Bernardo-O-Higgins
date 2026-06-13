@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -24,11 +25,28 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
+    /** Retorna solo los usuarios con rol ALUMNO */
+    public List<UsuarioDTO> obtenerAlumnos() {
+        return usuarioRepository.findByRol("ALUMNO").stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Busca un usuario por email — usado para autenticación.
+     * Retorna Optional vacío si no existe.
+     */
+    public Optional<UsuarioDTO> buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email).map(this::mapToDTO);
+    }
+
     public UsuarioDTO crearUsuario(UsuarioDTO dto) {
         Usuario usuario = new Usuario();
         usuario.setNombre(dto.getNombre());
         usuario.setEmail(dto.getEmail());
-        
+        usuario.setRol(dto.getRol() != null ? dto.getRol() : "ALUMNO");
+        usuario.setCurso(dto.getCurso());
+
         Usuario guardado = usuarioRepository.save(usuario);
         return mapToDTO(guardado);
     }
@@ -39,6 +57,8 @@ public class UsuarioService {
                 .id(usuario.getId())
                 .nombre(usuario.getNombre())
                 .email(usuario.getEmail())
+                .rol(usuario.getRol())
+                .curso(usuario.getCurso())
                 .build();
     }
 }

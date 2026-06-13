@@ -49,3 +49,26 @@ export interface AppNotification {
   targetRole: Role | 'ALL';
   targetUserId?: string;
 }
+
+// --- Nuevos Tipos para Convivencia ---
+export type EstadoAsistencia = 'PRESENTE' | 'AUSENTE' | 'TARDANZA' | 'JUSTIFICADO';
+
+export interface AsistenciaDTO {
+  id?: number;
+  estudianteId: number;
+  fecha: string;
+  estado: EstadoAsistencia;
+  observacion?: string;
+}
+
+export type TipoAnotacion = 'POSITIVA' | 'NEGATIVA' | 'INFORMATIVA';
+
+export interface AnotacionDTO {
+  id?: number;
+  estudianteId: number;
+  profesorId: number;
+  tipo: TipoAnotacion;
+  descripcion: string;
+  medida?: string;
+  fechaRegistro?: string;
+}

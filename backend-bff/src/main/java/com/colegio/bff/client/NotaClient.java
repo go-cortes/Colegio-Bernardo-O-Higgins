@@ -38,6 +38,21 @@ public class NotaClient {
         }
     }
 
+    public List<NotaDTO> getNotasPorEstudiante(Long estudianteId) {
+        try {
+            ResponseEntity<List<NotaDTO>> response = restTemplate.exchange(
+                    urlNotas + "/notas/estudiante/" + estudianteId,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<NotaDTO>>() {}
+            );
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Error al obtener notas del estudiante {} : {}", estudianteId, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     public NotaDTO postNota(NotaDTO dto) {
         try {
             return restTemplate.postForObject(urlNotas + "/notas", dto, NotaDTO.class);

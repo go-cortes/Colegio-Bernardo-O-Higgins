@@ -8,10 +8,12 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -35,6 +37,41 @@ public class UsuarioClient {
         } catch (Exception e) {
             log.error("Error al obtener usuarios desde el microservicio: {}", e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    /** GET /usuarios/alumnos — lista solo los alumnos */
+    public List<UsuarioDTO> getAlumnos() {
+        try {
+            ResponseEntity<List<UsuarioDTO>> response = restTemplate.exchange(
+                    urlUsuarios + "/usuarios/alumnos",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<UsuarioDTO>>() {}
+            );
+            return response.getBody() != null ? response.getBody() : Collections.emptyList();
+        } catch (Exception e) {
+            log.error("Error al obtener alumnos: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * GET /usuarios/by-email — busca un usuario por email.
+     * Retorna Optional vacío si no existe (404).
+     */
+    public Optional<UsuarioDTO> getByEmail(String email) {
+        try {
+            UsuarioDTO usuario = restTemplate.getForObject(
+                    urlUsuarios + "/usuarios/by-email?email=" + email,
+                    UsuarioDTO.class
+            );
+            return Optional.ofNullable(usuario);
+        } catch (HttpClientErrorException.NotFound e) {
+            return Optional.empty();
+        } catch (Exception e) {
+            log.error("Error al buscar usuario por email: {}", e.getMessage());
+            return Optional.empty();
         }
     }
 

@@ -5,9 +5,10 @@ import com.colegio.notas.model.Nota;
 import com.colegio.notas.repository.NotaRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class NotaServiceTest {
 
     @Mock
@@ -23,11 +25,6 @@ class NotaServiceTest {
 
     @InjectMocks
     private NotaService notaService;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void debeRetornarListaDeNotas() {
@@ -44,6 +41,18 @@ class NotaServiceTest {
         assertEquals("Historia", resultado.get(0).getAsignatura());
         assertEquals(6.0, resultado.get(0).getValorNota());
         verify(notaRepository, times(1)).findAll();
+    }
+
+    @Test
+    void debeRetornarNotasPorEstudiante() {
+        Nota n1 = new Nota(1L, 101L, "Historia", 6.0);
+        when(notaRepository.findByEstudianteId(101L)).thenReturn(Arrays.asList(n1));
+
+        List<NotaDTO> resultado = notaService.obtenerNotasPorEstudiante(101L);
+
+        assertEquals(1, resultado.size());
+        assertEquals("Historia", resultado.get(0).getAsignatura());
+        verify(notaRepository, times(1)).findByEstudianteId(101L);
     }
 
     @Test

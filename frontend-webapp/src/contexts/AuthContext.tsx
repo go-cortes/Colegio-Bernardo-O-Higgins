@@ -1,12 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { DEFAULT_CREDENTIALS } from '../services/dbService';
+import { loginPorEmail } from '../services/apiService';
 
 export type Role = 'admin' | 'profesor' | 'alumno' | null;
 
 export interface LocalUser {
-  id: string;
+  id: string;       // ID numérico de la BD como string
   email: string;
-  username: string;
+  username: string; // nombre del usuario
+  nombre: string;
+  rol: string;      // "ALUMNO", "PROFESOR", "ADMIN" (de la BD)
+  curso?: string;   // curso asignado (ej: "4° Medio A")
 }
 
 interface AuthContextType {
@@ -21,14 +24,22 @@ const SESSION_KEY = 'colegio_session';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const usernameFromEmail = (email: string): string =>
+/** Convierte el rol de la BD al tipo Role del frontend */
+const mapRol = (rolBD: string): Role => {
+  const r = rolBD?.toUpperCase();
+  if (r === 'ADMIN') return 'admin';
+  if (r === 'PROFESOR') return 'profesor';
+  if (r === 'ALUMNO') return 'alumno';
+  return 'alumno'; // fallback seguro
+};
+
+/** Contraseña demo: la parte del email antes del '@' */
+const passwordFromEmail = (email: string): string =>
   email.includes('@') ? email.split('@')[0].toLowerCase() : email.toLowerCase();
 
-const roleFromUsername = (username: string): Role => {
-  if (username === 'admin') return 'admin';
-  if (username === 'profesor') return 'profesor';
-  if (username === 'estudiante' || username === 'alumno') return 'alumno';
-  return 'alumno';
+/** Solo admin tiene credenciales fijas (no está en la BD de usuarios normal) */
+const ADMIN_CREDENTIALS: Record<string, { password: string; nombre: string }> = {
+  'admin@colegio.cl': { password: 'admin', nombre: 'Administrador' },
 };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -50,24 +61,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string): Promise<{ error: string | null }> => {
-    const username = usernameFromEmail(email);
-    const expected = DEFAULT_CREDENTIALS[username];
+    const emailLower = email.toLowerCase().trim();
 
-    if (!expected || expected !== password) {
-      return { error: 'Credenciales inválidas.' };
+    // 1. Verificar credenciales fijas (solo admin)
+    const fixed = ADMIN_CREDENTIALS[emailLower];
+    if (fixed) {
+      if (password !== fixed.password) return { error: 'Contraseña incorrecta.' };
+      const newUser: LocalUser = {
+        id: '0',
+        email: emailLower,
+        username: 'admin',
+        nombre: fixed.nombre,
+        rol: 'ADMIN',
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ user: newUser, role: 'admin' }));
+      setUser(newUser);
+      setRole('admin');
+      return { error: null };
     }
 
-    const detectedRole = roleFromUsername(username);
-    const newUser: LocalUser = {
-      id: username,
-      email: email.includes('@') ? email : `${username}@colegio.cl`,
-      username,
-    };
+    // 2. Todos los demás (profesores y alumnos) autentican contra la BD real.
+    // La contraseña demo es la parte del email antes del '@'
+    const expectedPass = passwordFromEmail(emailLower);
+    if (password !== expectedPass) {
+      return { error: 'Contraseña incorrecta. Usa la parte del email antes del @ (ej: "profesor" para profesor@colegio.cl).' };
+    }
 
-    localStorage.setItem(SESSION_KEY, JSON.stringify({ user: newUser, role: detectedRole }));
-    setUser(newUser);
-    setRole(detectedRole);
-    return { error: null };
+    try {
+      const usuarioEnBD = await loginPorEmail(emailLower);
+      const detectedRole = mapRol(usuarioEnBD.rol);
+      const bdUser = usuarioEnBD as { id: number; nombre: string; email: string; rol: string; curso?: string };
+      const newUser: LocalUser = {
+        id: String(bdUser.id),
+        email: bdUser.email,
+        username: bdUser.email.split('@')[0],
+        nombre: bdUser.nombre,
+        rol: bdUser.rol,
+        curso: bdUser.curso,
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify({ user: newUser, role: detectedRole }));
+      setUser(newUser);
+      setRole(detectedRole);
+      return { error: null };
+    } catch {
+      return { error: 'Usuario no encontrado. Verifica tu email.' };
+    }
   };
 
   const signOut = async () => {

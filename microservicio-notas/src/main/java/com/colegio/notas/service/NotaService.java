@@ -24,6 +24,13 @@ public class NotaService {
                 .collect(Collectors.toList());
     }
 
+    /** Retorna las notas de un único estudiante */
+    public List<NotaDTO> obtenerNotasPorEstudiante(Long estudianteId) {
+        return notaRepository.findByEstudianteId(estudianteId).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
     public NotaDTO crearNota(NotaDTO dto) {
         Nota nota = new Nota();
         nota.setEstudianteId(dto.getEstudianteId());

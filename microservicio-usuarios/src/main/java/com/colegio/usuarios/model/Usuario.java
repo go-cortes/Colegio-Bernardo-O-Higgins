@@ -23,5 +23,6 @@ public class Usuario {
     private Long id;
     private String nombre;
     private String email;
-
+    private String rol;
+    private String curso; // ej: "4° Medio A"
 }
